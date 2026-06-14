@@ -1,16 +1,31 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+export interface Review {
+  id: string
+  author: string
+  rating: number
+  comment: string
+  date: string
+}
+
 export interface Product {
   id: string
   name: string
   price: number
+  pricePKR?: number
   description: string
   material: string
   sizes: string[]
   images: string[]
   category: string
   color: string
+  inventory: number
+  rating?: number
+  reviewCount?: number
+  reviews?: Review[]
+  shipping?: string
+  returns?: string
 }
 
 export interface CartItem {
@@ -31,6 +46,7 @@ interface CartStore {
   closeCart: () => void
   getTotalItems: () => number
   getTotalPrice: () => number
+  getTotalPricePKR: () => number
 }
 
 export const useCartStore = create<CartStore>()(
@@ -91,6 +107,13 @@ export const useCartStore = create<CartStore>()(
       getTotalPrice: () => {
         return get().items.reduce(
           (total, item) => total + item.product.price * item.quantity,
+          0
+        )
+      },
+
+      getTotalPricePKR: () => {
+        return get().items.reduce(
+          (total, item) => total + (item.product.pricePKR || item.product.price * 280) * item.quantity,
           0
         )
       },

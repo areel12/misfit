@@ -1,9 +1,11 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Plus, Minus, ShoppingBag } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useCartStore } from '@/store/cart'
 import { cn } from '@/lib/utils'
 
 export function Cart() {
+  const navigate = useNavigate()
   const {
     items,
     isOpen,
@@ -158,6 +160,10 @@ export function Cart() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      navigate('/checkout')
+                      closeCart()
+                    }}
                     className={cn(
                       'w-full py-4 bg-foreground text-background font-bold tracking-[0.2em] text-sm',
                       'transition-all duration-300 hover:bg-primary hover:text-primary-foreground',

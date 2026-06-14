@@ -7,6 +7,10 @@ import { HomePage } from '@/pages/HomePage'
 import { ShopPage } from '@/pages/ShopPage'
 import { ProductPage } from '@/pages/ProductPage'
 import { DropsPage } from '@/pages/DropsPage'
+import { CheckoutPage } from '@/pages/CheckoutPage'
+import { AccountPage } from '@/pages/AccountPage'
+import { OrderPage } from '@/pages/OrderPage'
+import { AdminPage } from '@/pages/AdminPage'
 import { useEffect } from 'react'
 
 // Scroll to top on route change
@@ -41,20 +45,25 @@ function PageTransition({ children }: { children: React.ReactNode }) {
 
 function AppContent() {
   const location = useLocation()
+  const isAdminPage = location.pathname === '/admin'
 
   return (
     <>
-      <Navbar />
-      <Cart />
+      {!isAdminPage && <Navbar />}
+      {!isAdminPage && <Cart />}
       <PageTransition>
         <Routes location={location}>
           <Route path="/" element={<HomePage />} />
           <Route path="/shop" element={<ShopPage />} />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/drops" element={<DropsPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/account" element={<AccountPage />} />
+          <Route path="/order/:id" element={<OrderPage />} />
+          <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </PageTransition>
-      <Footer />
+      {!isAdminPage && <Footer />}
       
       {/* Noise overlay for premium feel */}
       <div className="noise-overlay" />
