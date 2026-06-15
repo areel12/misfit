@@ -3,91 +3,54 @@ import { Product } from '@/store/cart'
 export const products: Product[] = [
   {
     id: '1',
-    name: 'VOID HOODIE',
-    price: 189,
-    description: 'Premium oversized hoodie with reflective MISFIT branding. Features a heavyweight 400gsm cotton blend, ribbed cuffs, and a relaxed silhouette perfect for layering.',
-    material: '100% Premium Cotton, 400gsm heavyweight',
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: ['/products/hoodie-1.jpg'],
-    category: 'hoodies',
-    color: 'Obsidian Black'
+    name: 'Urban Echo Peach Tee',
+    price: 85,
+    pricePKR: 1399,
+    description: 'A premium oversized streetwear tee featuring monochrome urban photography panels with subtle lavender typography. Designed for comfort, style, and everyday wear.',
+    material: '100% Premium Cotton, 280gsm heavyweight',
+    sizes: ['M', 'L', 'XL'],
+    images: ['/products/peach-tee.jpg'],
+    category: 'tees',
+    color: 'Peach',
+    inventory: 50,
+    rating: 4.9,
+    reviewCount: 12,
+    shipping: 'Free shipping on orders over Rs. 3000. Standard delivery: 3-5 business days.',
+    returns: '30-day return policy. Items must be unworn with tags attached.'
   },
   {
     id: '2',
-    name: 'PHANTOM TEE',
-    price: 89,
-    description: 'Minimalist oversized tee with subtle embossed logo. Made from soft-touch organic cotton with a boxy fit and dropped shoulders.',
-    material: '100% Organic Cotton, 280gsm',
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: ['/products/tee-1.jpg'],
+    name: 'Fractured Vision Tee',
+    price: 95,
+    pricePKR: 1699,
+    description: 'A modern oversized T-shirt inspired by classical sculpture artwork. Combining timeless aesthetics with contemporary streetwear culture.',
+    material: '100% Premium Cotton, 280gsm heavyweight',
+    sizes: ['M', 'L', 'XL'],
+    images: ['/products/white-tee.jpg'],
     category: 'tees',
-    color: 'Shadow Grey'
+    color: 'White',
+    inventory: 50,
+    rating: 5.0,
+    reviewCount: 18,
+    shipping: 'Free shipping on orders over Rs. 3000. Standard delivery: 3-5 business days.',
+    returns: '30-day return policy. Items must be unworn with tags attached.'
   },
   {
     id: '3',
-    name: 'REBEL CAP',
-    price: 59,
-    description: 'Structured six-panel cap with embroidered MISFIT logo. Features an adjustable strap and curved brim.',
-    material: 'Cotton Twill',
-    sizes: ['ONE SIZE'],
-    images: ['/products/cap-1.jpg'],
-    category: 'accessories',
-    color: 'Midnight Black'
-  },
-  {
-    id: '4',
-    name: 'GLITCH HOODIE',
-    price: 219,
-    description: 'Limited edition hoodie with digital glitch print artwork. Double-layered hood, kangaroo pocket, and premium heavyweight fleece.',
-    material: '80% Cotton, 20% Polyester, 450gsm',
-    sizes: ['S', 'M', 'L', 'XL'],
-    images: ['/products/hoodie-2.jpg'],
-    category: 'hoodies',
-    color: 'Digital Black'
-  },
-  {
-    id: '5',
-    name: 'STATIC TEE',
-    price: 79,
-    description: 'Essential crew neck tee with tonal back print. Garment-dyed for a lived-in feel with reinforced seams.',
-    material: '100% Cotton, 220gsm',
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: ['/products/tee-2.jpg'],
+    name: 'David Fragments Oversized Tee',
+    price: 89,
+    pricePKR: 1450,
+    description: 'A bold statement oversized tee featuring fragmented David artwork. Perfect for streetwear enthusiasts who appreciate artistic fashion and premium comfort.',
+    material: '100% Premium Cotton, 280gsm heavyweight',
+    sizes: ['M', 'L', 'XL'],
+    images: ['/products/black-tee.jpg'],
     category: 'tees',
-    color: 'Washed Black'
-  },
-  {
-    id: '6',
-    name: 'DRIFT JACKET',
-    price: 289,
-    description: 'Technical overshirt jacket with water-resistant coating. Multiple utility pockets, snap buttons, and adjustable cuffs.',
-    material: 'Nylon/Cotton Blend, Water-resistant',
-    sizes: ['S', 'M', 'L', 'XL'],
-    images: ['/products/jacket-1.jpg'],
-    category: 'outerwear',
-    color: 'Stealth Black'
-  },
-  {
-    id: '7',
-    name: 'ECHO PANTS',
-    price: 149,
-    description: 'Relaxed cargo pants with multiple utility pockets. Elastic waistband, adjustable drawstrings, and tapered leg.',
-    material: 'Cotton Ripstop',
-    sizes: ['S', 'M', 'L', 'XL'],
-    images: ['/products/pants-1.jpg'],
-    category: 'bottoms',
-    color: 'Charcoal'
-  },
-  {
-    id: '8',
-    name: 'SURGE BEANIE',
-    price: 45,
-    description: 'Ribbed knit beanie with embroidered logo patch. Soft acrylic blend with a classic fold-over cuff.',
-    material: 'Acrylic Knit',
-    sizes: ['ONE SIZE'],
-    images: ['/products/beanie-1.jpg'],
-    category: 'accessories',
-    color: 'Black'
+    color: 'Black',
+    inventory: 50,
+    rating: 4.8,
+    reviewCount: 22,
+    shipping: 'Free shipping on orders over Rs. 3000. Standard delivery: 3-5 business days.',
+    returns: '30-day return policy. Items must be unworn with tags attached.'
   }
 ]
 
@@ -96,5 +59,70 @@ export const getProductById = (id: string): Product | undefined => {
 }
 
 export const getProductsByCategory = (category: string): Product[] => {
+  if (category === 'all') return products
   return products.filter((product) => product.category === category)
+}
+
+export const searchProducts = (query: string): Product[] => {
+  const lowerQuery = query.toLowerCase()
+  const searchTerms = ['peach', 'white', 'black', 'urban', 'echo', 'vision', 'david', 'fragments', 'fractured', 'misfit', 'oversized', 'tee']
+  
+  if (searchTerms.some(term => lowerQuery.includes(term))) {
+    return products.filter((product) =>
+      product.name.toLowerCase().includes(lowerQuery) ||
+      product.description.toLowerCase().includes(lowerQuery) ||
+      product.color.toLowerCase().includes(lowerQuery)
+    )
+  }
+  
+  return products.filter((product) =>
+    product.name.toLowerCase().includes(lowerQuery) ||
+    product.description.toLowerCase().includes(lowerQuery) ||
+    product.color.toLowerCase().includes(lowerQuery)
+  )
+}
+
+export const filterProducts = (
+  category?: string,
+  minPrice?: number,
+  maxPrice?: number,
+  colors?: string[],
+  sizes?: string[],
+  minRating?: number
+): Product[] => {
+  let filtered = [...products]
+
+  if (category && category !== 'all') {
+    filtered = filtered.filter((p) => p.category === category)
+  }
+
+  if (minPrice !== undefined) {
+    filtered = filtered.filter((p) => p.price >= minPrice)
+  }
+
+  if (maxPrice !== undefined) {
+    filtered = filtered.filter((p) => p.price <= maxPrice)
+  }
+
+  if (colors && colors.length > 0) {
+    filtered = filtered.filter((p) => colors.includes(p.color))
+  }
+
+  if (sizes && sizes.length > 0) {
+    filtered = filtered.filter((p) => p.sizes.some((s) => sizes.includes(s)))
+  }
+
+  if (minRating !== undefined) {
+    filtered = filtered.filter((p) => (p.rating || 0) >= minRating)
+  }
+
+  return filtered
+}
+
+export const collections = {
+  misfit_essentials: {
+    name: 'Misfit Essentials',
+    description: 'Our curated collection of premium streetwear tees',
+    products: products.map(p => p.id)
+  }
 }

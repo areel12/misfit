@@ -9,21 +9,21 @@ const Spline = lazy(() => import('@splinetool/react-spline'))
 const featuredItems = [
   {
     id: '1',
-    name: 'VOID HOODIE',
-    price: 189,
-    description: 'Premium heavyweight cotton',
+    name: 'Urban Echo Peach Tee',
+    price: 85,
+    description: 'Premium oversized streetwear tee',
   },
   {
-    id: '4',
-    name: 'GLITCH HOODIE',
-    price: 219,
-    description: 'Limited edition print',
+    id: '2',
+    name: 'Fractured Vision Tee',
+    price: 95,
+    description: 'Classical sculpture artwork',
   },
   {
-    id: '6',
-    name: 'DRIFT JACKET',
-    price: 289,
-    description: 'Technical overshirt',
+    id: '3',
+    name: 'David Fragments Oversized Tee',
+    price: 89,
+    description: 'Bold statement tee',
   },
 ]
 

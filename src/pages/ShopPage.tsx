@@ -1,8 +1,10 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
-import { ArrowRight, SlidersHorizontal, X } from 'lucide-react'
-import { products, Product } from '@/data/products'
+import { ArrowRight, SlidersHorizontal, X, Search } from 'lucide-react'
+import { products, searchProducts, filterProducts, getProductsByCategory } from '@/data/products'
+import { Product } from '@/store/cart'
+import { FilterPanel, FilterState } from '@/components/FilterPanel'
 import { cn } from '@/lib/utils'
 
 const categories = [
@@ -110,21 +112,71 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 export function ShopPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const currentCategory = searchParams.get('category') || 'all'
+  const [filters, setFilters] = useState<FilterState>({
+    search: '',
+    category: 'all',
+    minPrice: 0,
+    maxPrice: 500,
+    colors: [],
+    sizes: [],
+    minRating: 0,
+    sortBy: 'newest',
+  })
 
-  const filteredProducts =
-    currentCategory === 'all'
-      ? products
-      : products.filter((p) => p.category === currentCategory)
+  const filteredProducts = useMemo(() => {
+    let result = [...products]
 
-  const handleCategoryChange = (category: string) => {
-    if (category === 'all') {
-      setSearchParams({})
-    } else {
-      setSearchParams({ category })
+    // Apply search
+    if (filters.search) {
+      result = searchProducts(filters.search)
     }
-    setIsFilterOpen(false)
-  }
+
+    // Apply category filter
+    if (filters.category && filters.category !== 'all') {
+      result = result.filter((p) => p.category === filters.category)
+    }
+
+    // Apply price filter
+    result = result.filter(
+      (p) => p.price >= filters.minPrice && p.price <= filters.maxPrice
+    )
+
+    // Apply color filter
+    if (filters.colors.length > 0) {
+      result = result.filter((p) => filters.colors.includes(p.color))
+    }
+
+    // Apply size filter
+    if (filters.sizes.length > 0) {
+      result = result.filter((p) =>
+        p.sizes.some((s) => filters.sizes.includes(s))
+      )
+    }
+
+    // Apply rating filter
+    if (filters.minRating > 0) {
+      result = result.filter((p) => (p.rating || 0) >= filters.minRating)
+    }
+
+    // Apply sorting
+    switch (filters.sortBy) {
+      case 'price-low':
+        result.sort((a, b) => a.price - b.price)
+        break
+      case 'price-high':
+        result.sort((a, b) => b.price - a.price)
+        break
+      case 'rating':
+        result.sort((a, b) => (b.rating || 0) - (a.rating || 0))
+        break
+      case 'newest':
+      default:
+        result.reverse()
+        break
+    }
+
+    return result
+  }, [filters])
 
   return (
     <main className="min-h-screen pt-24 pb-16">
@@ -140,131 +192,49 @@ export function ShopPage() {
             SHOP
           </h1>
           <p className="text-muted-foreground tracking-wider">
-            {filteredProducts.length} PRODUCTS
+            {filteredProducts.length} PRODUCTS FOUND
           </p>
         </motion.div>
 
-        {/* Filter Bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="mb-8"
-        >
-          {/* Desktop filters */}
-          <div className="hidden md:flex items-center gap-6 pb-6 border-b border-border">
-            {categories.map((cat) => (
-              <button
-                key={cat.value}
-                onClick={() => handleCategoryChange(cat.value)}
-                className={cn(
-                  'text-xs tracking-[0.15em] transition-all duration-300',
-                  currentCategory === cat.value
-                    ? 'text-foreground font-bold'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          {/* Filters Sidebar */}
+          <div className="lg:col-span-1">
+            <FilterPanel onFilterChange={setFilters} />
+          </div>
+
+          {/* Products */}
+          <div className="lg:col-span-4">
+            {/* Product Grid */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={JSON.stringify(filters)}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="grid grid-cols-2 md:grid-cols-3 gap-6 lg:gap-8"
               >
-                {cat.label}
-                {currentCategory === cat.value && (
-                  <motion.div
-                    layoutId="activeCategory"
-                    className="mt-2 h-0.5 bg-primary"
-                  />
-                )}
-              </button>
-            ))}
-          </div>
-
-          {/* Mobile filter button */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsFilterOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 border border-border rounded-full text-sm tracking-wider"
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              FILTER
-            </button>
-          </div>
-        </motion.div>
-
-        {/* Product Grid */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentCategory}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8"
-          >
-            {filteredProducts.map((product, index) => (
-              <ProductCard key={product.id} product={product} index={index} />
-            ))}
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Empty state */}
-        {filteredProducts.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-16"
-          >
-            <p className="text-muted-foreground tracking-wider">
-              NO PRODUCTS FOUND
-            </p>
-          </motion.div>
-        )}
-      </div>
-
-      {/* Mobile Filter Panel */}
-      <AnimatePresence>
-        {isFilterOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50"
-              onClick={() => setIsFilterOpen(false)}
-            />
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed bottom-0 left-0 right-0 bg-card border-t border-border rounded-t-3xl p-6 z-50"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="font-bold tracking-[0.15em]">FILTER</h3>
-                <button
-                  onClick={() => setIsFilterOpen(false)}
-                  className="p-2"
-                  aria-label="Close filter"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                {categories.map((cat) => (
-                  <button
-                    key={cat.value}
-                    onClick={() => handleCategoryChange(cat.value)}
-                    className={cn(
-                      'py-3 px-4 border rounded-lg text-xs tracking-[0.15em] transition-all',
-                      currentCategory === cat.value
-                        ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-border hover:border-primary/50'
-                    )}
-                  >
-                    {cat.label}
-                  </button>
+                {filteredProducts.map((product, index) => (
+                  <ProductCard key={product.id} product={product} index={index} />
                 ))}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Empty state */}
+            {filteredProducts.length === 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-16"
+              >
+                <p className="text-muted-foreground tracking-wider">
+                  NO PRODUCTS FOUND
+                </p>
+              </motion.div>
+            )}
+          </div>
+        </div>
+      </div>
     </main>
   )
 }
